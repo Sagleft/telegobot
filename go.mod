@@ -1,4 +1,4 @@
-module gopkg.in/tucnak/telebot.v2
+module github.com/Sagleft/telegobot
 
 go 1.13
 
