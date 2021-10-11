@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/pkg/errors"
 )
 
 func (b *Bot) debug(err error) {
@@ -51,7 +52,7 @@ func wrapError(err error) error {
 // in errors.go, it will be prefixed with `unknown` keyword.
 func extractOk(data []byte) error {
 	// Parse the error message as JSON
-	var tgramApiError struct {
+	var tgramAPIError struct {
 		Ok          bool                   `json:"ok"`
 		ErrorCode   int                    `json:"error_code"`
 		Description string                 `json:"description"`
@@ -60,42 +61,42 @@ func extractOk(data []byte) error {
 	jdecoder := json.NewDecoder(bytes.NewReader(data))
 	jdecoder.UseNumber()
 
-	err := jdecoder.Decode(&tgramApiError)
+	err := jdecoder.Decode(&tgramAPIError)
 	if err != nil {
 		//return errors.Wrap(err, "can't parse JSON reply, the Telegram server is mibehaving")
 		// FIXME / TODO: in this case the error might be at HTTP level, or the content is not JSON (eg. image?)
 		return nil
 	}
 
-	if tgramApiError.Ok {
+	if tgramAPIError.Ok {
 		// No error
 		return nil
 	}
 
-	err = ErrByDescription(tgramApiError.Description)
+	err = ErrByDescription(tgramAPIError.Description)
 	if err != nil {
 		apierr, _ := err.(*APIError)
 		// Formally this is wrong, as the error is not created on the fly
 		// However, given the current way of handling errors, this a working
 		// workaround which doesn't break the API
-		apierr.Parameters = tgramApiError.Parameters
+		apierr.Parameters = tgramAPIError.Parameters
 		return apierr
 	}
 
-	switch tgramApiError.ErrorCode {
+	switch tgramAPIError.ErrorCode {
 	case http.StatusTooManyRequests:
-		retryAfter, ok := tgramApiError.Parameters["retry_after"]
+		retryAfter, ok := tgramAPIError.Parameters["retry_after"]
 		if !ok {
-			return NewAPIError(429, tgramApiError.Description)
+			return NewAPIError(429, tgramAPIError.Description)
 		}
 		retryAfterInt, _ := strconv.Atoi(fmt.Sprint(retryAfter))
 
 		err = FloodError{
-			APIError:   NewAPIError(429, tgramApiError.Description),
+			APIError:   NewAPIError(429, tgramAPIError.Description),
 			RetryAfter: retryAfterInt,
 		}
 	default:
-		err = fmt.Errorf("telegram unknown: %s (%d)", tgramApiError.Description, tgramApiError.ErrorCode)
+		err = fmt.Errorf("telegram unknown: %s (%d)", tgramAPIError.Description, tgramAPIError.ErrorCode)
 	}
 
 	return err

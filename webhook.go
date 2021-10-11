@@ -113,6 +113,7 @@ func (h *Webhook) getParams() map[string]string {
 	return params
 }
 
+// Poll messages
 func (h *Webhook) Poll(b *Bot, dest chan Update, stop chan struct{}) {
 	if err := b.SetWebhook(h); err != nil {
 		b.debug(err)
