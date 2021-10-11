@@ -1,6 +1,7 @@
 package telebot
 
 import (
+	"errors"
 	"time"
 )
 
@@ -95,6 +96,13 @@ func (p *LongPoller) Poll(b *Bot, dest chan Update, stop chan struct{}) {
 		case <-stop:
 			return
 		default:
+		}
+
+		_, err := b.getMe()
+		if err != nil {
+			b.debug(errors.New("failed to exec `getMe` request: " + err.Error()))
+			b.debug(errors.New("reconnect"))
+			b.Start()
 		}
 
 		updates, err := b.getUpdates(p.LastUpdateID+1, p.Limit, p.Timeout, p.AllowedUpdates)
