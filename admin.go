@@ -14,6 +14,9 @@ type ChatInviteLink struct {
 	// The creator of the link.
 	Creator *User `json:"creator"`
 
+	// Link name
+	Name string `json:"name"`
+
 	// If the link is primary.
 	IsPrimary bool `json:"is_primary"`
 

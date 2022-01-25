@@ -1696,6 +1696,7 @@ func (b *Bot) CreateInviteLink(chat *Chat, link *ChatInviteLink) (*ChatInviteLin
 	if link != nil {
 		params["expire_date"] = strconv.FormatInt(link.ExpireUnixtime, 10)
 		params["member_limit"] = strconv.Itoa(link.MemberLimit)
+		params["name"] = link.Name
 	}
 
 	data, err := b.Raw("createChatInviteLink", params)
@@ -1742,8 +1743,8 @@ func (b *Bot) EditInviteLink(chat *Chat, link *ChatInviteLink) (*ChatInviteLink,
 // RevokeInviteLink revokes an invite link created by the bot.
 func (b *Bot) RevokeInviteLink(chat *Chat, link string) (*ChatInviteLink, error) {
 	params := map[string]string{
-		"chat_id": chat.Recipient(),
-		"invite_link":    link,
+		"chat_id":     chat.Recipient(),
+		"invite_link": link,
 	}
 
 	data, err := b.Raw("revokeChatInviteLink", params)
